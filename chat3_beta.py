@@ -13,6 +13,7 @@ BUFFER_SIZE = 1024
 
 clients = []  # List to keep track of connected clients
 
+
 # Function to handle sending messages to all clients
 def broadcast_message(msg, sender_sock=None):
     for client in clients:
@@ -23,8 +24,9 @@ def broadcast_message(msg, sender_sock=None):
                 clients.remove(client)
                 client.close()
 
+
 # Function to handle sending messages
-def send_messages(sock):
+def send_messages(sock, name):
     while True:
         msg = input()
         if msg.lower() == "exit":
@@ -32,7 +34,9 @@ def send_messages(sock):
             sock.sendall("EXIT".encode())  # Notify the other side
             sock.close()
             break
-        broadcast_message(msg)
+        full_msg = f"{name}: {msg}"
+        broadcast_message(full_msg, sock)
+
 
 # Function to handle receiving messages from a single client
 def handle_client(sock):
@@ -48,22 +52,25 @@ def handle_client(sock):
                 sock.close()
                 break
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            print(f"\n{Fore.CYAN}[{timestamp}] Peer: {decoded_data}")
+            print(f"\n{Fore.CYAN}[{timestamp}] {decoded_data}")
             broadcast_message(decoded_data, sock)
         except:
             print(f"{Fore.RED}[ERROR] Connection error.")
             break
+
 
 # Parse arguments
 parser = argparse.ArgumentParser(description="CLI Chat Application")
 parser.add_argument("--key", required=True, help="Shared key to connect devices")
 parser.add_argument("--mode", required=True, choices=["server", "client"], help="Run as server or client")
 parser.add_argument("--host", help="Server IP address (for client mode)")
+parser.add_argument("--name", required=True, help="Name to use in the chat")
 args = parser.parse_args()
 
 shared_key = args.key
 mode = args.mode
 host = args.host
+name = args.name
 
 if mode == "server":
     # Run as server
@@ -120,7 +127,7 @@ else:
                 print(f"{Fore.GREEN}[INFO] Authentication successful.")
 
                 # Start sending and receiving threads
-                send_thread = threading.Thread(target=send_messages, args=(client_socket,))
+                send_thread = threading.Thread(target=send_messages, args=(client_socket, name))
                 receive_thread = threading.Thread(target=handle_client, args=(client_socket,))
                 send_thread.start()
                 receive_thread.start()
