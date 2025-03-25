@@ -21,3 +21,9 @@ All releases are in the `releases` folder
 - Use argument `--key` to specify the connection key, this does not encrypt traffic, it only makes the connection refuse if the key is wrong.
 - Use argument `--mode` to specify whether device is the client or the server, defaults to `client.`
 - Use arguemnt `--host` for the client only, use the local ip address of the server, defaults to `127.0.0.1`.
+
+## Future plans
+
+1. First and formost is to add encryption. Preferiable a `Diffie Hellman` key exchange.
+2. Styling interface more.
+3. Adding option to have more than `1` client.
